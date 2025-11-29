@@ -1,0 +1,6 @@
+[submodule "lib/lite-xl"]
+	path = lib/lite-xl
+	url = https://github.com/lite-xl/lite-xl.git
+[submodule "lib/stb"]
+	path = lib/stb
+	url = https://github.com/nothings/stb.git
