@@ -72,15 +72,17 @@ static int f_image_save(lua_State* L) {
   lua_getfield(L, 1, "width");
   x = lua_tointeger(L, -1);
   lua_getfield(L, 1, "height");
-  x = lua_tointeger(L, -1);
+  y = lua_tointeger(L, -1);
   lua_getfield(L, 1, "channels");
-  x = lua_tointeger(L, -1);
+  channels = lua_tointeger(L, -1);
   lua_getfield(L, 1, "__data");
   const char* bytes = lua_touserdata(L, -1);
   lua_pop(L, 4);
   int options_table = -1;
   luaL_Buffer b;
   void* context = L;
+  const char* format = "raw";
+  
   if (lua_type(L, 3) == LUA_TTABLE)
     options_table = 3;
   else if (lua_type(L, 2) == LUA_TTABLE)
@@ -90,17 +92,16 @@ static int f_image_save(lua_State* L) {
     write_func = f_image_write_callback;
   else if (lua_type(L, 2) == LUA_TSTRING) {
     write_func = f_image_write_disk;
-    context = fopen(lua_tostring(L, 2), "wb");
+    size_t length;
+    const char* path = luaL_checklstring(L, 2, &length);
+    format = &path[length - 3];
+    context = fopen(path, "wb");
   } else {
     write_func = f_image_write_memory;
     luaL_buffinit(L, &b);
     context = &b;
   }
-  size_t length;
-  const char* path = luaL_checklstring(L, 2, &length);
-  if (length < 4)
-    return luaL_error(L, "invalid filename");
-  const char* format = &path[length - 3];
+  
   int quality = 50;
   int stride = x * channels;
   if (options_table != -1 && lua_type(L, options_table) == LUA_TTABLE) {
@@ -171,7 +172,7 @@ int luaopen_image(lua_State* L) {
   lua_pushliteral(L, IMAGE_VERSION);
   lua_setfield(L, -2, "version");
   lua_pushvalue(L, -1);
-  lua_setmetatable(L, -2);
+  lua_setfield(L, -2, "__index");
   return 1;
 }
 
