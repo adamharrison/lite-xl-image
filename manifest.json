@@ -1,32 +1,41 @@
 {
-  "addons": [{
-    "id": "image",
-    "type": "library",
-    "version": "0.1",
-    "files": [{
-      "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.1/image.x86-linux.so",
-      "arch": "x86-linux",
-      "checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaa"
-    }, {
-      "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.1/image.x86_64-linux.so",
-      "arch": "x86_64-linux",
-      "checksum": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    } , {
-      "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.1/image.x86-windows.dll",
-      "arch": "x86-windows",
-      "checksum": "cccccccccccccccccccccccccccc"
-    }, {
-      "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.1/image.x86_64-windows.dll",
-      "arch": "x86_64-windows",
-      "checksum": "ddddddddddddddddddddddd"
-    }, {
-      "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.1/image.x86_64-darwin.so",
-      "arch": "x86_64-darwin",
-      "checksum": "eeeeeeeeeeeeeeeeeeeeeee"
-    }, {
-      "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.1/image.aarch64-darwin.so",
-      "arch": "aarch64-darwin",
-      "checksum": "ffffffffffffffffffffffff"
-    }]
-  }]
+  "addons": [
+    {
+      "files": [
+        {
+          "arch": "x86-linux",
+          "checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.1/image.x86-linux.so"
+        },
+        {
+          "arch": "x86_64-linux",
+          "checksum": "80c83a8d6e7c779ff3a7916d57f870e1b4b593283b31eb5b43189aebc854e8e2",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.2/image.x86_64-linux.so"
+        },
+        {
+          "arch": "x86-windows",
+          "checksum": "cccccccccccccccccccccccccccc",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.1/image.x86-windows.dll"
+        },
+        {
+          "arch": "x86_64-windows",
+          "checksum": "6ca7f870c78d97d86628b1e1f17b3f60124d9c665bb86738b77fa4d7c2a9e836",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.2/image.x86_64-windows.dll"
+        },
+        {
+          "arch": "x86_64-darwin",
+          "checksum": "1970f56827f22335fe9cb69b227f48c7a0428b41dc461d23fd3cadc3f83e6343",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.2/image.x86_64-darwin.so"
+        },
+        {
+          "arch": "aarch64-darwin",
+          "checksum": "6ccba2234a668d88f93a912bf9730aa298cf191bf73c3afd539617a9f1fde022",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.2/image.aarch64-darwin.so"
+        }
+      ],
+      "id": "image",
+      "type": "library",
+      "version": "0.2"
+    }
+  ]
 }
