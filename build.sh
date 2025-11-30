@@ -5,6 +5,6 @@
 CFLAGS="$CFLAGS -fPIC -Ilib/lite-xl/resources/include -Ilib/stb"
 LDFLAGS="$LDFLAGS -lm"
 
-[[ "$@" == "clean" ]] && rm -f *.so && exit 0
+[[ "$@" == "clean" ]] && rm -f $BIN && exit 0
 
 $CC $CFLAGS image.c $@ -shared -o $BIN $LDFLAGS

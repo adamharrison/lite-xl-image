@@ -96,6 +96,8 @@ static int f_image_save(lua_State* L) {
     const char* path = luaL_checklstring(L, 2, &length);
     format = &path[length - 3];
     context = fopen(path, "wb");
+    if (!context)
+      return luaL_error(L, "can't open file: %s", strerror(errno));
   } else {
     write_func = f_image_write_memory;
     luaL_buffinit(L, &b);
@@ -118,7 +120,7 @@ static int f_image_save(lua_State* L) {
       format = luaL_checkstring(L, -1);
     lua_pop(L, 1);
   }
-  int status = 0;
+  int status = -1;
   if (strcmp(format, "png") == 0)
     status = stbi_write_png_to_func(write_func, context, x, y, channels, bytes, stride);
   else if (strcmp(format, "jpg") == 0)
@@ -130,20 +132,18 @@ static int f_image_save(lua_State* L) {
   else if (strcmp(format, "raw") == 0)
     write_func(context, (void*)bytes, channels * x * y);
   else {
-    status = -1;
+    status = 0;
     lua_pushfstring(L, "unknown file format %s", format);
   }
-  if (status != 0) {
-    status = -1;
+  if (status)
     lua_pushfstring(L, "unable to save image: %s", strerror(errno));
-  }
   if (write_func == f_image_write_disk)
     fclose(context);
   else if (write_func == f_image_write_memory) {
     luaL_pushresult(&b);
     return 1;
   }
-  return status == 0 ? 0 : lua_error(L);
+  return status == 0 ? lua_error(L) : 0;
 }
 
 
