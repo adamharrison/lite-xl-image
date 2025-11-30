@@ -23,5 +23,3 @@ i:save(function(bytes)
   print(#bytes)
 end, { format = "jpg" })
 ```
-
-
