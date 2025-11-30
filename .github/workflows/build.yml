@@ -18,9 +18,9 @@ jobs:
       run: |
         git config --global user.name "Github Actions" && git config --global user.email "adamdharrison@gmail.com"
         sudo apt-get install -y cmake gcc gcc-multilib g++ mingw-w64 gcc-13-aarch64-linux-gnu
-        ./build.sh clean && BIN="image.x86_64-linux.so" ./build.sh &&
-        ./build.sh clean && BIN="image.aarch64-linux.so" CC=aarch64-linux-gnu-gcc ./build.sh &&
-        ./build.sh clean && BIN="image.x86_64-windows.dll" CC=x86_64-w64-mingw32-gcc ./build.sh
+        ./build.sh clean && BIN="image.x86_64-linux.so" ./build.sh -O3 -s &&
+        ./build.sh clean && BIN="image.aarch64-linux.so" CC=aarch64-linux-gnu-gcc ./build.sh -O3 -s &&
+        ./build.sh clean && BIN="image.x86_64-windows.dll" CC=x86_64-w64-mingw32-gcc ./build.sh -O3 -s
     - name: Upload Windows Artifacts
       uses: actions/upload-artifact@v4
       with: { name: "Windows", path: "*.dll" }
@@ -41,8 +41,8 @@ jobs:
     - name: Build MacOS
       env: { GITHUB_TOKEN: "${{ github.token }}" }
       run: |
-        ./build.sh clean && BIN="image.aarch64-darwin.so" CFLAGS="-arch arm64" LDFLAGS="-arch arm64" ./build.sh
-        ./build.sh clean && BIN="image.x86_64-darwin.so" CFLAGS="-arch x86_64" LDFLAGS="-arch x86_64" ./build.sh
+        ./build.sh clean && BIN="image.aarch64-darwin.so" CFLAGS="-arch arm64" LDFLAGS="-arch arm64" ./build.sh -O3 -s
+        ./build.sh clean && BIN="image.x86_64-darwin.so" CFLAGS="-arch x86_64" LDFLAGS="-arch x86_64" ./build.sh -O3 -s
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with: { name: "MacOS", path: "*.so" }
