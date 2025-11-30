@@ -17,9 +17,9 @@ jobs:
     - name: Build Libraries
       run: |
         git config --global user.name "Github Actions" && git config --global user.email "adamdharrison@gmail.com"
-        sudo apt-get install -y cmake gcc gcc-multilib g++ mingw-w64 gcc-13-aarch64-linux-gnu
+        sudo apt-get install -y cmake gcc mingw-w64 gcc-14-aarch64-linux-gnu
         ./build.sh clean && BIN="image.x86_64-linux.so" ./build.sh -O3 -s &&
-        ./build.sh clean && BIN="image.aarch64-linux.so" CC=aarch64-linux-gnu-gcc ./build.sh -O3 -s &&
+        ./build.sh clean && BIN="image.aarch64-linux.so" CC=aarch64-linux-gnu-gcc-14 ./build.sh -O3 -s &&
         ./build.sh clean && BIN="image.x86_64-windows.dll" CC=x86_64-w64-mingw32-gcc ./build.sh -O3 -s
     - name: Upload Windows Artifacts
       uses: actions/upload-artifact@v4
