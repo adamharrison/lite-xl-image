@@ -4,19 +4,24 @@
   #include <lualib.h>
 #else
   #define LITE_XL_PLUGIN_ENTRYPOINT
-  #include <lite_xl_plugin_api.h>
+  #include "lib/lite-xl/resources/include/lite_xl_plugin_api.h"
 #endif
 
+#include <ctype.h>
 #include <errno.h>
 #include <string.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "lib/stb/stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
+#include "lib/stb/stb_image_write.h"
+#define NANOSVG_IMPLEMENTATION
+#include "lib/nanosvg/src/nanosvg.h"
+#define NANOSVGRAST_IMPLEMENTATION
+#include "lib/nanosvg/src/nanosvgrast.h"
 
 static int f_image_gc(lua_State* L) {
   lua_getfield(L, 1, "__data");
-  stbi_image_free(lua_touserdata(L, -1));
+  free(lua_touserdata(L, -1));
   return 0;
 }
 
@@ -37,16 +42,52 @@ static int f_image_create(lua_State* L, const char* bytes, int x, int y, int cha
 static int f_image_new(lua_State* L) {
   size_t length;
   const char* buffer = luaL_checklstring(L, 1, &length);
+  // first non-whitespace cahracter should be <. If so, it's likely an XML document.
+  int is_svg = 0;
+  for (int i = 0; i < length; ++i) {
+    if (isspace(buffer[i]))
+      continue;
+    if (buffer[i] == '<')
+      is_svg = 1;
+    break;
+  }
   int x, y, channels;
-  const char* bytes = stbi_load_from_memory(buffer, length, &x, &y, &channels, 0);
+  char* bytes;
+  if (is_svg) {
+    char* modifiedBuffer = strdup(buffer);
+    NSVGimage* image = nsvgParse(modifiedBuffer, "px", 96);
+    NSVGrasterizer* rast = nsvgCreateRasterizer();
+    x = image->width;
+    y = image->height;
+    channels = 4;
+    bytes = malloc(x * y * channels);
+    nsvgRasterize(rast, image, 0, 0, 1, bytes, x, y, x * channels);
+    nsvgDelete(image);
+    nsvgDeleteRasterizer(rast);
+    free(modifiedBuffer);
+  } else
+    bytes = stbi_load_from_memory(buffer, length, &x, &y, &channels, 0);
   return f_image_create(L, bytes, x, y, channels);
 }
 
 static int f_image_load(lua_State* L) {
   const char* path = luaL_checkstring(L, 1);
   int x, y, channels;
-  const char* buffer = stbi_load(path, &x, &y, &channels, 0);
-  return f_image_create(L, buffer, x, y, channels);
+  char* bytes;
+  if (strstr(path, ".svg")) {
+    NSVGimage* image = nsvgParseFromFile(path, "px", 96);
+    NSVGrasterizer* rast = nsvgCreateRasterizer();
+    x = image->width;
+    y = image->height;
+    channels = 4;
+    bytes = malloc(x * y * channels);
+    nsvgRasterize(rast, image, 0, 0, 1, bytes, x, y, x * channels);
+    nsvgDelete(image);
+    nsvgDeleteRasterizer(rast);
+  } else {
+    bytes = stbi_load(path, &x, &y, &channels, 0);
+  }
+  return f_image_create(L, bytes, x, y, channels);
 }
 
 static void f_image_write_disk(void *context, void *data, int size) {
