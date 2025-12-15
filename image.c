@@ -39,6 +39,29 @@ static int f_image_create(lua_State* L, const char* bytes, int x, int y, int cha
   return 1;
 }
 
+static char* f_rasterize(const char* bytes, int* x, int* y, int* channels, int copy) {
+  char* buffer = copy ? strdup(bytes) : (char*)bytes;
+  NSVGimage* image = nsvgParse(buffer, "px", 96);
+  if (!image)
+    return NULL;
+  NSVGrasterizer* rast = nsvgCreateRasterizer();
+  float scale = 1.0f;
+  if (*x == -1 && *y == -1) {
+    *x = image->width;
+    *y = image->height;
+  } else {
+    scale = *x / (float)image->width;
+  }
+  *channels = 4;
+  char* raster_buffer = malloc(*x * *y * *channels);
+  nsvgRasterize(rast, image, 0, 0, scale, raster_buffer, *x, *y, *x * *channels);
+  nsvgDelete(image);
+  nsvgDeleteRasterizer(rast);
+  if (copy)
+    free(buffer);
+  return raster_buffer;
+}
+
 static int f_image_new(lua_State* L) {
   size_t length;
   const char* buffer = luaL_checklstring(L, 1, &length);
@@ -51,42 +74,44 @@ static int f_image_new(lua_State* L) {
       is_svg = 1;
     break;
   }
-  int x, y, channels;
+  int x = -1, y = -1, channels;
   char* bytes;
   if (is_svg) {
-    char* modifiedBuffer = strdup(buffer);
-    NSVGimage* image = nsvgParse(modifiedBuffer, "px", 96);
-    NSVGrasterizer* rast = nsvgCreateRasterizer();
-    x = image->width;
-    y = image->height;
-    channels = 4;
-    bytes = malloc(x * y * channels);
-    nsvgRasterize(rast, image, 0, 0, 1, bytes, x, y, x * channels);
-    nsvgDelete(image);
-    nsvgDeleteRasterizer(rast);
-    free(modifiedBuffer);
-  } else
+    if (lua_gettop(L) >= 2) {
+      x = luaL_checkinteger(L, 2);
+      y = luaL_checkinteger(L, 3);
+    }
+    bytes = f_rasterize(buffer, &x, &y, &channels, 1);
+  } else 
     bytes = stbi_load_from_memory(buffer, length, &x, &y, &channels, 0);
   return f_image_create(L, bytes, x, y, channels);
 }
 
 static int f_image_load(lua_State* L) {
   const char* path = luaL_checkstring(L, 1);
-  int x, y, channels;
+  int x = -1, y = -1, channels;
   char* bytes;
   if (strstr(path, ".svg")) {
-    NSVGimage* image = nsvgParseFromFile(path, "px", 96);
-    NSVGrasterizer* rast = nsvgCreateRasterizer();
-    x = image->width;
-    y = image->height;
-    channels = 4;
-    bytes = malloc(x * y * channels);
-    nsvgRasterize(rast, image, 0, 0, 1, bytes, x, y, x * channels);
-    nsvgDelete(image);
-    nsvgDeleteRasterizer(rast);
-  } else {
+    FILE* file = fopen(path, "rb");
+    fseek(file, 0, SEEK_END);
+    long length = ftell(file);
+    char* contents = malloc(length + 1);
+    fseek(file, 0, SEEK_SET);
+    if (fread(contents, sizeof(char), length, file) != length) {
+      fclose(file);
+      free(contents);
+      return luaL_error(L, "error reading file");
+    }
+    contents[length] = 0;
+    fclose(file);
+    if (lua_gettop(L) >= 2) {
+      x = luaL_checkinteger(L, 2);
+      y = luaL_checkinteger(L, 3);
+    }
+    bytes = f_rasterize(contents, &x, &y, &channels, 0);
+    free(contents);
+  } else
     bytes = stbi_load(path, &x, &y, &channels, 0);
-  }
   return f_image_create(L, bytes, x, y, channels);
 }
 
@@ -172,7 +197,10 @@ static int f_image_save(lua_State* L) {
     status = stbi_write_hdr_to_func(write_func, context, x, y, channels, (float*)bytes);
   else if (strcmp(format, "raw") == 0)
     write_func(context, (void*)bytes, channels * x * y);
-  else {
+  else if (strcmp(format, "svg") == 0) {
+    status = 0;
+    lua_pushfstring(L, "writing to svg unsupported");
+  } else {
     status = 0;
     lua_pushfstring(L, "unknown file format %s", format);
   }
