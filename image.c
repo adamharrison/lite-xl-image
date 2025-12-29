@@ -1,3 +1,4 @@
+#include <stdint.h>
 #ifdef LIBIMAGE_STANDALONE
   #include <lua.h>
   #include <lauxlib.h>
@@ -171,7 +172,8 @@ static int f_image_save(lua_State* L) {
   }
   
   int quality = 50;
-  int stride = x * channels;
+  int target_channels = channels;
+  int stride = -1;
   if (options_table != -1 && lua_type(L, options_table) == LUA_TTABLE) {
     lua_getfield(L, options_table, "quality");
     if (!lua_isnil(L, -1))
@@ -185,18 +187,42 @@ static int f_image_save(lua_State* L) {
     if (!lua_isnil(L, -1))
       format = luaL_checkstring(L, -1);
     lua_pop(L, 1);
+    lua_getfield(L, options_table, "channels");
+    if (!lua_isnil(L, -1))
+      target_channels = luaL_checkinteger(L, -1);
+    lua_pop(L, 1);
   }
+  if (target_channels != channels) {
+    char* target_bytes = malloc(target_channels * x * y);
+    uint8_t byte;
+    int target = 0;
+    int source = 0;
+    int lowest_channels = channels < target_channels ? channels : target_channels;
+    for (int j = 0; j < y; ++j) {
+      for (int i = 0; i < x; ++i) {
+        for (int c = 0; c < lowest_channels; ++c)
+          target_bytes[target++] = bytes[source++];  
+        for (int c = channels; c < target_channels; ++c)
+          target_bytes[target++] = 0xFF;
+        if (target_channels < channels)
+          source += (channels - target_channels);
+      }
+    }
+    bytes = target_bytes;
+  }
+  if (stride == -1)
+    stride = target_channels * x;
   int status = -1;
   if (strcmp(format, "png") == 0)
-    status = stbi_write_png_to_func(write_func, context, x, y, channels, bytes, stride);
+    status = stbi_write_png_to_func(write_func, context, x, y, target_channels, bytes, stride);
   else if (strcmp(format, "jpg") == 0)
-    status = stbi_write_jpg_to_func(write_func, context,x, y, channels, bytes, quality);
+    status = stbi_write_jpg_to_func(write_func, context, x, y, target_channels, bytes, quality);
   else if (strcmp(format, "tga") == 0)
-    status = stbi_write_tga_to_func(write_func, context,x, y, channels, bytes);
+    status = stbi_write_tga_to_func(write_func, context, x, y, target_channels, bytes);
   else if (strcmp(format, "hdr") == 0)
-    status = stbi_write_hdr_to_func(write_func, context, x, y, channels, (float*)bytes);
+    status = stbi_write_hdr_to_func(write_func, context, x, y, target_channels, (float*)bytes);
   else if (strcmp(format, "raw") == 0)
-    write_func(context, (void*)bytes, channels * x * y);
+    write_func(context, (void*)bytes, target_channels * x * y);
   else if (strcmp(format, "svg") == 0) {
     status = 0;
     lua_pushfstring(L, "writing to svg unsupported");
@@ -204,6 +230,8 @@ static int f_image_save(lua_State* L) {
     status = 0;
     lua_pushfstring(L, "unknown file format %s", format);
   }
+  if (target_channels != channels)
+    free((char*)bytes);
   if (status)
     lua_pushfstring(L, "unable to save image: %s", strerror(errno));
   if (write_func == f_image_write_disk)

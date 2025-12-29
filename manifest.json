@@ -36,6 +36,16 @@
       "id": "image",
       "type": "library",
       "version": "0.3"
+    },
+    {
+      "id": "imagepreview",
+      "type": "plugin",
+      "version": "0.1",
+      "mod_version": 4,
+      "dependencies": {
+        "image": {}
+      },
+      "path": "imagepreview.lua"
     }
   ]
 }
