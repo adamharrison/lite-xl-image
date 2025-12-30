@@ -23,3 +23,7 @@ i:save(function(bytes)
   print(#bytes)
 end, { format = "jpg" })
 ```
+
+## imagepreview
+
+A simple plugin that uses `image`, and 3.0's `canvas` feature to display images direclty inside the editor when opened.
