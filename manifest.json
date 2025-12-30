@@ -4,48 +4,48 @@
       "files": [
         {
           "arch": "x86_64-linux",
-          "checksum": "dec91843e0ca1d5796eb4c7461d2db5609359dddcec71b8e3277a5c1e0302515",
-          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.3/image.x86_64-linux.so",
-          "path": "init.x86_64-linux.so"
+          "checksum": "54384c44c8462f990875d092314a7aa82a18688526c608f210d78ea381d6d6ec",
+          "path": "init.x86_64-linux.so",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.4/image.x86_64-linux.so"
         },
         {
           "arch": "aarch64-linux",
-          "checksum": "cf55a8e5aed84de6b6efce116990032d08962159c7855303502e1eeeb530cca3",
-          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.3/image.aarch64-linux.so",
-          "path": "init.aarch64-linux.so"
+          "checksum": "ba057f6f33787cdf08758c7d2e96d6ba88c06257428bd41358e02a12252299dd",
+          "path": "init.aarch64-linux.so",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.4/image.aarch64-linux.so"
         },
         {
           "arch": "x86_64-windows",
-          "checksum": "231ab5f3c0edd1a1158203a6b69a0331c8bc6510cf6a1f3141d3cfe7970ee25c",
-          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.3/image.x86_64-windows.dll",
-          "path": "init.x86_64-windows.dll"
+          "checksum": "47e430087ba0b95a31bffcc7d36111d05cb1ae47a7a26290798907048667f2b2",
+          "path": "init.x86_64-windows.dll",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.4/image.x86_64-windows.dll"
         },
         {
           "arch": "x86_64-darwin",
-          "checksum": "c6e35cdd19859d2253e01c43af3948732c1d3dc521cd0ea759800d84be49fdb4",
-          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.3/image.x86_64-darwin.so",
-          "path": "init.x86_64-darwin.so"
+          "checksum": "480581a5042b14830bd04bb2410a524c85fb421e94472acff6de875acdafdcbe",
+          "path": "init.x86_64-darwin.so",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.4/image.x86_64-darwin.so"
         },
         {
           "arch": "aarch64-darwin",
-          "checksum": "9f238465fd58dccfd013206bf6ad5e9e0960f6cf45d2009aa5773806a902722b",
-          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.3/image.aarch64-darwin.so",
-          "path": "init.x86_64-darwin.so"
+          "checksum": "329dbd5463c54ed22aa87f14e4545bc19ce9936495f54a46aac0fb0b87ea61db",
+          "path": "init.x86_64-darwin.so",
+          "url": "https://github.com/adamharrison/lite-xl-image/releases/download/v0.4/image.aarch64-darwin.so"
         }
       ],
       "id": "image",
       "type": "library",
-      "version": "0.3"
+      "version": "0.4"
     },
     {
-      "id": "imagepreview",
-      "type": "plugin",
-      "version": "0.1",
-      "mod_version": 4,
       "dependencies": {
         "image": {}
       },
-      "path": "imagepreview.lua"
+      "id": "imagepreview",
+      "mod_version": 4,
+      "path": "imagepreview.lua",
+      "type": "plugin",
+      "version": "0.1"
     }
   ]
 }
